@@ -406,18 +406,6 @@ body::before {
   border: 1px solid rgba(197, 48, 48, 0.2);
 }
 
-.url-info {
-  background: var(--success-bg);
-  color: var(--success-text);
-  padding: 18px;
-  border-radius: 12px;
-  margin-bottom: 24px;
-  font-size: 0.95rem;
-  text-align: center;
-  font-weight: 500;
-  border: 1px solid rgba(34, 84, 61, 0.2);
-}
-
 @media (max-width: 768px) {
   body {
     padding: 0;
@@ -506,12 +494,6 @@ body::before {
     right: 15px;
     padding: 10px 12px;
     font-size: 1rem;
-  }
-
-  .url-info {
-    margin-bottom: 20px;
-    padding: 16px;
-    font-size: 0.9rem;
   }
 
   .loading,

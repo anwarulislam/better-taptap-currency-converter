@@ -65,7 +65,6 @@ class CurrencyConverter {
     this.rateDisplay = document.getElementById("rateDisplay");
     this.loadingDiv = document.getElementById("loading");
     this.errorDiv = document.getElementById("error");
-    this.urlInfo = document.getElementById("urlInfo");
   }
 
   parseUrlParameters() {
@@ -78,9 +77,6 @@ class CurrencyConverter {
       this.defaultFromCurrency = from.toUpperCase();
       this.defaultToCurrency = to.toUpperCase();
       this.defaultAmount = amount || "1";
-
-      this.urlInfo.textContent = `Parameters detected: Converting ${this.defaultFromCurrency} to ${this.defaultToCurrency}`;
-      this.urlInfo.classList.remove("hidden");
     }
   }
 
