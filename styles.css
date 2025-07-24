@@ -261,7 +261,7 @@ body::before {
 }
 
 .currency-select {
-  padding: 20px 48px 20px 24px;
+  padding: 20px 24px;
   border: none;
   background: var(--accent-color);
   color: white;
@@ -273,6 +273,18 @@ body::before {
   transition: all 0.3s ease;
   position: relative;
   z-index: 1;
+
+  /* Remove default dropdown arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Add custom dropdown arrow */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 
 .currency-select:hover {
@@ -464,12 +476,13 @@ body::before {
   }
 
   .currency-select {
-    padding: 22px 22px 22px 16px;
+    padding: 22px 16px;
     font-size: 1rem;
     min-width: 90px;
     flex: 0 0 auto;
-    background-size: 16px 16px;
+    background-size: 14px;
     background-position: right 12px center;
+    padding-right: 36px;
   }
 
   .input-group label {
@@ -533,11 +546,12 @@ body::before {
   }
 
   .currency-select {
-    padding: 20px 32px 20px 14px;
+    padding: 20px 14px;
     font-size: 0.95rem;
     min-width: 85px;
-    background-size: 14px 14px;
+    background-size: 12px;
     background-position: right 10px center;
+    padding-right: 32px;
   }
 
   .swap-button {
@@ -565,9 +579,12 @@ body::before {
   }
 
   .currency-select {
-    padding: 18px 20px 18px 12px;
+    padding: 18px 12px;
     font-size: 0.9rem;
     min-width: 80px;
+    background-size: 12px;
+    background-position: right 8px center;
+    padding-right: 28px;
   }
 
   .container {
