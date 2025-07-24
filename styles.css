@@ -56,13 +56,13 @@
 
 html,
 body {
-  height: 100%;
   overflow-x: hidden;
 }
 
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -315,6 +315,7 @@ body::before {
   z-index: 10;
   box-shadow: var(--shadow-light);
   position: relative;
+  margin-top: 0.6rem;
 }
 
 .swap-button::before {
@@ -459,8 +460,6 @@ body::before {
 
   .converter-form {
     gap: 24px;
-    /* flex: 1; */
-    padding: 60px 0 50px 0;
     justify-content: center;
   }
 
@@ -494,11 +493,10 @@ body::before {
     width: 64px;
     height: 64px;
     font-size: 1.8rem;
-    margin: -12px 0;
   }
 
   .rate-display {
-    margin-top: 20px;
+    margin-top: 50px;
     padding: 20px;
     font-size: 1rem;
   }
@@ -530,11 +528,12 @@ body::before {
   }
 
   .header h1 {
-    font-size: 2.2rem;
+    font-size: 2.1rem;
   }
 
   .container {
     padding: 16px;
+    padding-bottom: 70px;
   }
 
   .converter-form {
@@ -575,7 +574,7 @@ body::before {
 
 @media (max-width: 375px) {
   .header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .currency-input input {
@@ -591,6 +590,7 @@ body::before {
 
   .container {
     padding: 12px;
+    padding-bottom: 70px;
   }
 }
 
