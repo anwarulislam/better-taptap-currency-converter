@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TapTap Send Currency Converter</title>
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <span id="themeIcon">🌙</span>
+    </button>
+
+    <div class="container">
+      <div class="header">
+        <h1>💱 Currency Converter</h1>
+        <p>Real-time exchange rates</p>
+      </div>
+
+      <div id="urlInfo" class="url-info hidden"></div>
+
+      <form class="converter-form" id="converterForm">
+        <div class="input-group">
+          <label for="fromAmount">From</label>
+          <div class="currency-input">
+            <input
+              type="number"
+              id="fromAmount"
+              placeholder="Enter amount"
+              value="1"
+              step="0.01"
+              min="0"
+            />
+            <select id="fromCurrency" class="currency-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="swap-button"
+          id="swapButton"
+          title="Swap currencies"
+        >
+          ⇅
+        </button>
+
+        <div class="input-group">
+          <label for="toAmount">To</label>
+          <div class="currency-input">
+            <input
+              type="number"
+              id="toAmount"
+              placeholder="Converted amount"
+              readonly
+            />
+            <select id="toCurrency" class="currency-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+        </div>
+      </form>
+
+      <div id="rateDisplay" class="rate-display hidden"></div>
+      <div id="loading" class="loading hidden">Loading exchange rates...</div>
+      <div id="error" class="error hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
