@@ -3,9 +3,27 @@ class ThemeManager {
   constructor() {
     this.themeToggle = document.getElementById("themeToggle");
     this.themeIcon = document.getElementById("themeIcon");
-    this.currentTheme = localStorage.getItem("theme") || "light";
+    this.currentTheme = this.getInitialTheme();
 
     this.init();
+  }
+
+  getInitialTheme() {
+    // Check if user has a saved preference
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      return savedTheme;
+    }
+
+    // Detect system theme preference
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      return "dark";
+    }
+
+    return "light";
   }
 
   init() {
@@ -51,28 +69,18 @@ class CurrencyConverter {
   }
 
   parseUrlParameters() {
-    const path = window.location.pathname;
-    const match = path.match(/\/([a-zA-Z]{3})\/([a-zA-Z]{3})/i);
+    const urlParams = new URLSearchParams(window.location.search);
+    const from = urlParams.get("from");
+    const to = urlParams.get("to");
+    const amount = urlParams.get("amount");
 
-    if (match) {
-      this.defaultFromCurrency = match[1].toUpperCase();
-      this.defaultToCurrency = match[2].toUpperCase();
+    if (from && to) {
+      this.defaultFromCurrency = from.toUpperCase();
+      this.defaultToCurrency = to.toUpperCase();
+      this.defaultAmount = amount || "1";
 
-      this.urlInfo.textContent = `URL detected: Converting ${this.defaultFromCurrency} to ${this.defaultToCurrency}`;
+      this.urlInfo.textContent = `Parameters detected: Converting ${this.defaultFromCurrency} to ${this.defaultToCurrency}`;
       this.urlInfo.classList.remove("hidden");
-    } else {
-      // Check query parameters as fallback
-      const urlParams = new URLSearchParams(window.location.search);
-      const from = urlParams.get("from");
-      const to = urlParams.get("to");
-
-      if (from && to) {
-        this.defaultFromCurrency = from.toUpperCase();
-        this.defaultToCurrency = to.toUpperCase();
-
-        this.urlInfo.textContent = `Parameters detected: Converting ${this.defaultFromCurrency} to ${this.defaultToCurrency}`;
-        this.urlInfo.classList.remove("hidden");
-      }
     }
   }
 
@@ -178,6 +186,7 @@ class CurrencyConverter {
     // Set default currencies based on URL parameters or fallback to USD/BDT
     const fromCurrency = this.defaultFromCurrency || "USD";
     const toCurrency = this.defaultToCurrency || "BDT";
+    const amount = this.defaultAmount || "1";
 
     if (this.currencies.has(fromCurrency)) {
       this.fromCurrencySelect.value = fromCurrency;
@@ -186,24 +195,31 @@ class CurrencyConverter {
     if (this.currencies.has(toCurrency)) {
       this.toCurrencySelect.value = toCurrency;
     }
+
+    // Set the default amount
+    this.fromAmountInput.value = amount;
   }
 
   bindEvents() {
-    this.fromAmountInput.addEventListener("input", () =>
-      this.calculateConversion()
-    );
-    this.fromCurrencySelect.addEventListener("change", () =>
-      this.calculateConversion()
-    );
-    this.toCurrencySelect.addEventListener("change", () =>
-      this.calculateConversion()
-    );
+    this.fromAmountInput.addEventListener("input", () => {
+      this.calculateConversion();
+      this.updateURL();
+    });
+    this.fromCurrencySelect.addEventListener("change", () => {
+      this.calculateConversion();
+      this.updateURL();
+    });
+    this.toCurrencySelect.addEventListener("change", () => {
+      this.calculateConversion();
+      this.updateURL();
+    });
     this.swapButton.addEventListener("click", () => this.swapCurrencies());
 
     // Allow editing the "to" amount for reverse calculation
-    this.toAmountInput.addEventListener("input", () =>
-      this.reverseCalculateConversion()
-    );
+    this.toAmountInput.addEventListener("input", () => {
+      this.reverseCalculateConversion();
+      this.updateURL();
+    });
   }
 
   calculateConversion() {
@@ -246,11 +262,16 @@ class CurrencyConverter {
     const toCurrency = this.toCurrencySelect.value;
 
     if (!fromCurrency || !toCurrency || toAmount === 0) {
+      this.fromAmountInput.value = "";
+      this.hideRateDisplay();
+      this.hideError();
       return;
     }
 
     if (fromCurrency === toCurrency) {
       this.fromAmountInput.value = toAmount.toFixed(2);
+      this.showRateDisplay(1, fromCurrency, toCurrency);
+      this.hideError();
       return;
     }
 
@@ -259,6 +280,13 @@ class CurrencyConverter {
     if (rate && rate > 0) {
       const originalAmount = toAmount / rate;
       this.fromAmountInput.value = originalAmount.toFixed(2);
+      this.showRateDisplay(rate, fromCurrency, toCurrency);
+      this.hideError();
+    } else {
+      this.fromAmountInput.value = "";
+      this.showError(
+        `Exchange rate not available for ${fromCurrency} to ${toCurrency}`
+      );
     }
   }
 
@@ -277,6 +305,23 @@ class CurrencyConverter {
     this.fromAmountInput.value = toAmount;
 
     this.calculateConversion();
+    this.updateURL();
+  }
+
+  updateURL() {
+    const fromCurrency = this.fromCurrencySelect.value;
+    const toCurrency = this.toCurrencySelect.value;
+    const amount = this.fromAmountInput.value;
+
+    if (fromCurrency && toCurrency && amount) {
+      const params = new URLSearchParams();
+      params.set("from", fromCurrency.toLowerCase());
+      params.set("to", toCurrency.toLowerCase());
+      params.set("amount", amount);
+
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, "", newUrl);
+    }
   }
 
   showRateDisplay(rate, fromCurrency, toCurrency) {
@@ -324,11 +369,3 @@ document.addEventListener("DOMContentLoaded", () => {
   new ThemeManager();
   new CurrencyConverter();
 });
-
-// Update URL when currencies change (optional feature)
-function updateURL(fromCurrency, toCurrency) {
-  if (fromCurrency && toCurrency) {
-    const newPath = `/${fromCurrency.toLowerCase()}/${toCurrency.toLowerCase()}`;
-    window.history.replaceState({}, "", newPath);
-  }
-}
