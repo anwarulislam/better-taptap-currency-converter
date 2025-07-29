@@ -102,10 +102,18 @@ body::before {
   z-index: -1;
 }
 
-.theme-toggle {
+/* Header Controls */
+.header-controls {
   position: fixed;
   top: 20px;
   right: 20px;
+  display: flex;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.theme-toggle,
+.settings-toggle {
   background: var(--glass-bg);
   backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--glass-border);
@@ -115,7 +123,6 @@ body::before {
   font-size: 1.2rem;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-light);
-  z-index: 1000;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -125,10 +132,171 @@ body::before {
   justify-content: center;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.settings-toggle:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-medium);
   background: var(--bg-primary);
+}
+
+/* Settings Modal */
+.settings-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.settings-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.settings-content {
+  background: var(--glass-bg);
+  backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-medium);
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
+
+.settings-modal.hidden .settings-content {
+  transform: scale(0.9);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.close-settings {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-settings:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.settings-body {
+  padding: 24px;
+}
+
+.setting-group {
+  margin-bottom: 20px;
+}
+
+.setting-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.settings-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  /* Remove default dropdown arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Add custom dropdown arrow */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.save-settings,
+.reset-settings {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.save-settings {
+  background: var(--accent-color);
+  color: white;
+}
+
+.save-settings:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.reset-settings {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.reset-settings:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
 }
 
 .container {
@@ -502,11 +670,30 @@ body::before {
     font-size: 1rem;
   }
 
-  .theme-toggle {
+  .header-controls {
     top: 15px;
     right: 15px;
+    gap: 8px;
+  }
+
+  .theme-toggle,
+  .settings-toggle {
     padding: 10px 12px;
     font-size: 1rem;
+    min-width: 50px;
+  }
+
+  .settings-content {
+    width: 95%;
+    max-width: 350px;
+  }
+
+  .settings-header {
+    padding: 20px;
+  }
+
+  .settings-body {
+    padding: 20px;
   }
 
   .loading,
@@ -560,11 +747,17 @@ body::before {
     font-size: 1.6rem;
   }
 
-  .theme-toggle {
+  .header-controls {
     top: 12px;
     right: 12px;
+    gap: 6px;
+  }
+
+  .theme-toggle,
+  .settings-toggle {
     padding: 8px 10px;
     font-size: 0.95rem;
+    min-width: 44px;
   }
 }
 

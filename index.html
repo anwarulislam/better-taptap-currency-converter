@@ -130,9 +130,56 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-      <span id="themeIcon">🌙</span>
-    </button>
+    <div class="header-controls">
+      <button class="settings-toggle" id="settingsToggle" aria-label="Settings">
+        <span id="settingsIcon">⚙️</span>
+      </button>
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        aria-label="Toggle dark mode"
+      >
+        <span id="themeIcon">🌙</span>
+      </button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal hidden" id="settingsModal">
+      <div class="settings-content">
+        <div class="settings-header">
+          <h3>Default Settings</h3>
+          <button
+            class="close-settings"
+            id="closeSettings"
+            aria-label="Close settings"
+          >
+            ×
+          </button>
+        </div>
+        <div class="settings-body">
+          <div class="setting-group">
+            <label for="defaultFromCurrency">Default From Currency</label>
+            <select id="defaultFromCurrency" class="settings-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label for="defaultToCurrency">Default To Currency</label>
+            <select id="defaultToCurrency" class="settings-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div class="settings-actions">
+            <button class="save-settings" id="saveSettings">
+              Save Defaults
+            </button>
+            <button class="reset-settings" id="resetSettings">
+              Reset to AED/BDT
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="container">
       <div class="header">

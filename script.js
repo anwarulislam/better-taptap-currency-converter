@@ -44,16 +44,186 @@ class ThemeManager {
   }
 }
 
+// Settings Management
+class SettingsManager {
+  constructor(currencyConverter) {
+    this.currencyConverter = currencyConverter;
+    this.settingsToggle = document.getElementById("settingsToggle");
+    this.settingsModal = document.getElementById("settingsModal");
+    this.closeSettings = document.getElementById("closeSettings");
+    this.saveSettings = document.getElementById("saveSettings");
+    this.resetSettings = document.getElementById("resetSettings");
+    this.defaultFromSelect = document.getElementById("defaultFromCurrency");
+    this.defaultToSelect = document.getElementById("defaultToCurrency");
+
+    this.init();
+  }
+
+  init() {
+    this.bindEvents();
+    this.loadSavedSettings();
+  }
+
+  bindEvents() {
+    this.settingsToggle.addEventListener("click", () => this.openSettings());
+    this.closeSettings.addEventListener("click", () =>
+      this.closeSettingsModal()
+    );
+    this.saveSettings.addEventListener("click", () =>
+      this.saveDefaultSettings()
+    );
+    this.resetSettings.addEventListener("click", () => this.resetToDefaults());
+
+    // Close modal when clicking outside
+    this.settingsModal.addEventListener("click", (e) => {
+      if (e.target === this.settingsModal) {
+        this.closeSettingsModal();
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "Escape" &&
+        !this.settingsModal.classList.contains("hidden")
+      ) {
+        this.closeSettingsModal();
+      }
+    });
+  }
+
+  populateSettingsSelects() {
+    const currencies = Array.from(this.currencyConverter.currencies).sort();
+
+    // Clear existing options
+    this.defaultFromSelect.innerHTML = "";
+    this.defaultToSelect.innerHTML = "";
+
+    currencies.forEach((currency) => {
+      const option1 = new Option(currency, currency);
+      const option2 = new Option(currency, currency);
+
+      this.defaultFromSelect.appendChild(option1);
+      this.defaultToSelect.appendChild(option2);
+    });
+
+    // Set current values
+    const savedDefaults = this.getSavedDefaults();
+    this.defaultFromSelect.value = savedDefaults.from;
+    this.defaultToSelect.value = savedDefaults.to;
+  }
+
+  openSettings() {
+    this.populateSettingsSelects();
+    this.settingsModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  closeSettingsModal() {
+    this.settingsModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  saveDefaultSettings() {
+    const newDefaults = {
+      from: this.defaultFromSelect.value,
+      to: this.defaultToSelect.value,
+    };
+
+    localStorage.setItem("defaultCurrencies", JSON.stringify(newDefaults));
+    this.closeSettingsModal();
+
+    // Show success feedback
+    this.showSuccessMessage("Default currencies saved!");
+  }
+
+  resetToDefaults() {
+    localStorage.removeItem("defaultCurrencies");
+    this.defaultFromSelect.value = "AED";
+    this.defaultToSelect.value = "BDT";
+    this.showSuccessMessage("Reset to AED/BDT defaults!");
+  }
+
+  getSavedDefaults() {
+    const saved = localStorage.getItem("defaultCurrencies");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return { from: "AED", to: "BDT" };
+  }
+
+  loadSavedSettings() {
+    const defaults = this.getSavedDefaults();
+    // Only update if the converter doesn't already have saved defaults
+    if (!this.currencyConverter.savedDefaults) {
+      this.currencyConverter.savedDefaults = defaults;
+    }
+  }
+
+  showSuccessMessage(message) {
+    // Create a temporary success message
+    const successDiv = document.createElement("div");
+    successDiv.className = "success-message";
+    successDiv.textContent = message;
+    successDiv.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: var(--success-bg);
+      color: var(--success-text);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 500;
+      z-index: 3000;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(34, 84, 61, 0.2);
+    `;
+
+    document.body.appendChild(successDiv);
+
+    // Animate in
+    setTimeout(() => {
+      successDiv.style.transform = "translateX(0)";
+    }, 100);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+      successDiv.style.transform = "translateX(100%)";
+      setTimeout(() => {
+        document.body.removeChild(successDiv);
+      }, 300);
+    }, 3000);
+  }
+}
+
 class CurrencyConverter {
   constructor() {
     this.exchangeRates = new Map();
     this.currencies = new Set();
     this.apiData = null;
+    this.settingsManager = null;
 
     this.initializeElements();
+    this.loadSavedDefaults();
     this.parseUrlParameters();
     this.fetchExchangeRates();
     this.bindEvents();
+  }
+
+  loadSavedDefaults() {
+    // Load saved defaults from localStorage before setting defaults
+    const saved = localStorage.getItem("defaultCurrencies");
+    if (saved) {
+      try {
+        this.savedDefaults = JSON.parse(saved);
+      } catch (e) {
+        console.warn("Failed to parse saved defaults:", e);
+        this.savedDefaults = { from: "AED", to: "BDT" };
+      }
+    } else {
+      this.savedDefaults = { from: "AED", to: "BDT" };
+    }
   }
 
   initializeElements() {
@@ -101,6 +271,11 @@ class CurrencyConverter {
 
       // Ensure error is hidden on success
       this.hideError();
+
+      // Initialize settings manager after currencies are loaded
+      if (!this.settingsManager) {
+        this.settingsManager = new SettingsManager(this);
+      }
     } catch (error) {
       console.error("Error fetching exchange rates:", error);
       this.showError("Failed to fetch exchange rates. Please try again later.");
@@ -179,9 +354,12 @@ class CurrencyConverter {
   }
 
   setDefaultCurrencies() {
-    // Set default currencies based on URL parameters or fallback to USD/BDT
-    const fromCurrency = this.defaultFromCurrency || "USD";
-    const toCurrency = this.defaultToCurrency || "BDT";
+    // Priority: URL parameters > saved localStorage defaults > fallback to AED/BDT
+    const savedDefaults = this.savedDefaults || { from: "AED", to: "BDT" };
+
+    // If URL has query params, use them, otherwise use saved defaults
+    const fromCurrency = this.defaultFromCurrency || savedDefaults.from;
+    const toCurrency = this.defaultToCurrency || savedDefaults.to;
     const amount = this.defaultAmount || "1";
 
     if (this.currencies.has(fromCurrency)) {
